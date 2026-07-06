@@ -96,7 +96,7 @@ export class AiDraftService {
       const child = this.spawnImpl(
         command,
         ["exec", "--sandbox", "read-only", "--ephemeral", prompt],
-        { shell: false }
+        { shell: false, stdio: ["ignore", "pipe", "pipe"] }
       );
       let stdout = "";
       let stderr = "";

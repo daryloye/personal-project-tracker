@@ -72,13 +72,15 @@ test("testProvider returns a failed result instead of throwing", async () => {
 test("runCodex uses exec-safe argument array", async () => {
   let capturedCommand = "";
   let capturedArgs = [];
+  let capturedOptions = {};
   const service = new AiDraftService({
     store: fakeStore({}),
     appSecret: "secret",
     codexCommand: "codex",
-    spawnImpl: (command, args) => {
+    spawnImpl: (command, args, options) => {
       capturedCommand = command;
       capturedArgs = args;
+      capturedOptions = options;
       return successfulSpawn("ok")();
     }
   });
@@ -87,6 +89,7 @@ test("runCodex uses exec-safe argument array", async () => {
 
   assert.equal(capturedCommand, "codex");
   assert.deepEqual(capturedArgs, ["exec", "--sandbox", "read-only", "--ephemeral", "hello"]);
+  assert.deepEqual(capturedOptions.stdio, ["ignore", "pipe", "pipe"]);
 });
 
 function fakeStore(settings) {
