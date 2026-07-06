@@ -188,6 +188,27 @@ export class JsonStore {
     return session;
   }
 
+  async createDecision(projectId, input) {
+    const state = await this.read();
+    if (!state.projects.some((item) => item.id === projectId)) return null;
+    const timestamp = nowIso();
+    const decision = {
+      id: createId("decision"),
+      projectId,
+      topic: input.topic,
+      optionsConsidered: input.optionsConsidered || "",
+      selectedOption: input.selectedOption || "",
+      rationale: input.rationale || "",
+      aiContribution: input.aiContribution || "",
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+    state.decisions.push(decision);
+    await this.touchProject(state, projectId);
+    await this.write(state);
+    return decision;
+  }
+
   async getAiSettings() {
     const state = await this.read();
     const { apiKeyEncrypted, ...safeSettings } = state.aiSettings;
@@ -222,4 +243,3 @@ export class JsonStore {
     if (project) project.updatedAt = nowIso();
   }
 }
-

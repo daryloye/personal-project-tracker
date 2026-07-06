@@ -46,6 +46,12 @@ export function validateAiSession(input) {
   return body;
 }
 
+export function validateDecision(input) {
+  const body = requireObject(input);
+  if (!stringPresent(body.topic)) throw new HttpError(400, "Decision topic is required.");
+  return body;
+}
+
 export function validateAiSettings(input) {
   const body = requireObject(input);
   if (body.provider && !providers.has(body.provider)) throw new HttpError(400, "Invalid AI provider.");
@@ -59,4 +65,3 @@ export function validateAiSettings(input) {
 function stringPresent(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
-

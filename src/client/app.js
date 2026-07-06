@@ -89,12 +89,25 @@ async function loadProject(projectId) {
   fragment.querySelector('[data-field="problem"]').textContent = project.problem || "Not recorded yet.";
   fragment.querySelector('[data-field="outcome"]').textContent = project.outcome || "Not recorded yet.";
   fragment.querySelector('[data-field="techStack"]').textContent = project.techStack || "Not recorded yet.";
+  renderMiniList(fragment.querySelector('[data-list="milestones"]'), project.milestones, (milestone) => `${milestone.title} (${milestone.status})`);
   renderMiniList(fragment.querySelector('[data-list="tasks"]'), project.tasks, (task) => `${task.title} (${task.status})`);
   renderMiniList(
     fragment.querySelector('[data-list="aiSessions"]'),
     project.aiSessions,
     (session) => `${session.tool || "AI"}: ${session.outputSummary || session.decision || "Logged"}`
   );
+  renderMiniList(
+    fragment.querySelector('[data-list="decisions"]'),
+    project.decisions,
+    (decision) => `${decision.topic}: ${decision.selectedOption || "Not selected yet"}`
+  );
+
+  fragment.querySelector("#milestoneForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget));
+    await api(`/api/projects/${projectId}/milestones`, { method: "POST", body: payload });
+    await loadProject(projectId);
+  });
 
   fragment.querySelector("#taskForm").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -107,6 +120,13 @@ async function loadProject(projectId) {
     event.preventDefault();
     const payload = Object.fromEntries(new FormData(event.currentTarget));
     await api(`/api/projects/${projectId}/ai-sessions`, { method: "POST", body: payload });
+    await loadProject(projectId);
+  });
+
+  fragment.querySelector("#decisionForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget));
+    await api(`/api/projects/${projectId}/decisions`, { method: "POST", body: payload });
     await loadProject(projectId);
   });
 
@@ -172,4 +192,3 @@ function escapeHtml(value) {
     }[char];
   });
 }
-

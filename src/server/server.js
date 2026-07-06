@@ -1,4 +1,5 @@
 import http from "node:http";
+import { pathToFileURL } from "node:url";
 import { config } from "./config.js";
 import { encryptSecret } from "./crypto.js";
 import { AiDraftService } from "./aiService.js";
@@ -7,6 +8,7 @@ import { JsonStore } from "./storage.js";
 import {
   HttpError,
   validateAiSession,
+  validateDecision,
   validateAiSettings,
   validateMilestone,
   validateProject,
@@ -87,6 +89,13 @@ async function routeApi(req, res, url, store, aiDraftService) {
       return;
     }
 
+    if (method === "POST" && segments[3] === "decisions") {
+      const decision = await store.createDecision(projectId, validateDecision(await readJson(req)));
+      if (!decision) throw new HttpError(404, "Project not found.");
+      sendJson(res, 201, { decision });
+      return;
+    }
+
     if (method === "POST" && segments[3] === "draft-readme") {
       const project = await requireProject(store, projectId);
       const draft = await aiDraftService.draftReadme(project);
@@ -139,9 +148,8 @@ async function requireProject(store, id) {
   return project;
 }
 
-if (process.env.NODE_ENV !== "test") {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   createServer({ store, aiDraftService, publicDir: config.publicDir }).listen(config.port, () => {
     console.log(`Personal Project Tracker running at http://localhost:${config.port}`);
   });
 }
-

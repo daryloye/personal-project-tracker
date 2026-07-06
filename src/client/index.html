@@ -107,6 +107,14 @@
           </dl>
         </section>
         <section>
+          <h3>Add Milestone</h3>
+          <form id="milestoneForm" class="stack compact">
+            <input name="title" required placeholder="Milestone title">
+            <textarea name="description" rows="2" placeholder="Description"></textarea>
+            <button type="submit">Add Milestone</button>
+          </form>
+        </section>
+        <section>
           <h3>Add Task</h3>
           <form id="taskForm" class="stack compact">
             <input name="title" required placeholder="Task title">
@@ -116,6 +124,16 @@
               <option value="low">Low</option>
             </select>
             <button type="submit">Add Task</button>
+          </form>
+        </section>
+        <section>
+          <h3>Add Decision</h3>
+          <form id="decisionForm" class="stack compact">
+            <input name="topic" required placeholder="Decision topic">
+            <input name="selectedOption" placeholder="Selected option">
+            <textarea name="rationale" rows="2" placeholder="Rationale"></textarea>
+            <textarea name="aiContribution" rows="2" placeholder="AI contribution"></textarea>
+            <button type="submit">Add Decision</button>
           </form>
         </section>
         <section>
@@ -131,12 +149,20 @@
       </div>
       <div class="detail-grid">
         <section>
+          <h3>Milestones</h3>
+          <div data-list="milestones" class="mini-list"></div>
+        </section>
+        <section>
           <h3>Tasks</h3>
           <div data-list="tasks" class="mini-list"></div>
         </section>
         <section>
           <h3>AI Sessions</h3>
           <div data-list="aiSessions" class="mini-list"></div>
+        </section>
+        <section>
+          <h3>Decisions</h3>
+          <div data-list="decisions" class="mini-list"></div>
         </section>
       </div>
       <section>
@@ -151,4 +177,3 @@
     <script src="/app.js" type="module"></script>
   </body>
 </html>
-
