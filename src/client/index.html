@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Personal Project Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Personal Project Tracker</h1>
+        <p>Track project progress, AI sessions, and README drafts.</p>
+      </div>
+      <button id="refreshButton" type="button">Refresh</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>New Project</h2>
+        <form id="projectForm" class="stack">
+          <label>
+            Title
+            <input name="title" required placeholder="Personal Project Tracker">
+          </label>
+          <label>
+            Problem
+            <textarea name="problem" rows="3" placeholder="What problem does this solve?"></textarea>
+          </label>
+          <label>
+            Target user
+            <input name="targetUser" placeholder="Solo builders">
+          </label>
+          <label>
+            Outcome
+            <textarea name="outcome" rows="2" placeholder="What should be achieved?"></textarea>
+          </label>
+          <label>
+            Tech stack
+            <input name="techStack" placeholder="Node.js, static frontend, JSON storage">
+          </label>
+          <button type="submit">Create Project</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-title">
+          <h2>Projects</h2>
+          <span id="projectCount" class="muted">0</span>
+        </div>
+        <div id="projectList" class="project-list"></div>
+      </section>
+
+      <section class="panel detail-panel">
+        <div class="section-title">
+          <h2 id="detailTitle">Select a project</h2>
+          <span id="detailStatus" class="status"></span>
+        </div>
+        <div id="detailContent" class="muted">Create or select a project to manage tasks and AI logs.</div>
+      </section>
+
+      <section class="panel">
+        <h2>AI Settings</h2>
+        <form id="settingsForm" class="stack">
+          <label>
+            Provider
+            <select name="provider">
+              <option value="none">None</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="gemini">Gemini</option>
+            </select>
+          </label>
+          <label>
+            Model
+            <input name="model" placeholder="gpt-4.1-mini">
+          </label>
+          <label>
+            API key
+            <input name="apiKey" type="password" placeholder="Leave blank to keep existing key">
+          </label>
+          <label class="inline">
+            <input name="useCodexFallback" type="checkbox">
+            Use local Codex fallback
+          </label>
+          <label>
+            Codex command
+            <input name="codexCommand" placeholder="codex">
+          </label>
+          <div class="button-row">
+            <button type="submit">Save Settings</button>
+            <button id="testProviderButton" type="button">Test</button>
+          </div>
+          <p id="settingsStatus" class="muted"></p>
+        </form>
+      </section>
+    </main>
+
+    <template id="projectDetailTemplate">
+      <div class="detail-grid">
+        <section>
+          <h3>Summary</h3>
+          <dl class="summary-list">
+            <div><dt>Problem</dt><dd data-field="problem"></dd></div>
+            <div><dt>Outcome</dt><dd data-field="outcome"></dd></div>
+            <div><dt>Stack</dt><dd data-field="techStack"></dd></div>
+          </dl>
+        </section>
+        <section>
+          <h3>Add Task</h3>
+          <form id="taskForm" class="stack compact">
+            <input name="title" required placeholder="Task title">
+            <select name="priority">
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+            <button type="submit">Add Task</button>
+          </form>
+        </section>
+        <section>
+          <h3>Add AI Session</h3>
+          <form id="aiSessionForm" class="stack compact">
+            <input name="tool" placeholder="Codex, ChatGPT, Cursor">
+            <textarea name="prompt" rows="2" placeholder="Prompt"></textarea>
+            <textarea name="outputSummary" rows="2" placeholder="Output summary"></textarea>
+            <textarea name="decision" rows="2" placeholder="Human decision"></textarea>
+            <button type="submit">Add AI Log</button>
+          </form>
+        </section>
+      </div>
+      <div class="detail-grid">
+        <section>
+          <h3>Tasks</h3>
+          <div data-list="tasks" class="mini-list"></div>
+        </section>
+        <section>
+          <h3>AI Sessions</h3>
+          <div data-list="aiSessions" class="mini-list"></div>
+        </section>
+      </div>
+      <section>
+        <div class="section-title">
+          <h3>README Draft</h3>
+          <button id="draftReadmeButton" type="button">Draft README</button>
+        </div>
+        <textarea id="draftOutput" rows="14" readonly placeholder="Draft output appears here."></textarea>
+      </section>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
+
