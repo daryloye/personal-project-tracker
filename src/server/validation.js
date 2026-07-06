@@ -56,6 +56,9 @@ export function validateAiSettings(input) {
   const body = requireObject(input);
   if (body.provider && !providers.has(body.provider)) throw new HttpError(400, "Invalid AI provider.");
   if (body.apiKey && typeof body.apiKey !== "string") throw new HttpError(400, "API key must be a string.");
+  if (body.clearApiKey !== undefined && typeof body.clearApiKey !== "boolean") {
+    throw new HttpError(400, "Clear API key must be true or false.");
+  }
   if (body.useCodexFallback !== undefined && typeof body.useCodexFallback !== "boolean") {
     throw new HttpError(400, "Codex fallback must be true or false.");
   }

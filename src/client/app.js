@@ -37,6 +37,7 @@ elements.settingsForm.addEventListener("submit", async (event) => {
   const formData = new FormData(elements.settingsForm);
   const payload = Object.fromEntries(formData);
   payload.useCodexFallback = formData.get("useCodexFallback") === "on";
+  payload.clearApiKey = formData.get("clearApiKey") === "on";
   const { settings } = await api("/api/settings/ai", { method: "PUT", body: payload });
   renderSettings(settings, "Settings saved.");
 });
@@ -150,6 +151,7 @@ function renderSettings(settings, message = "") {
   elements.settingsForm.provider.value = settings.provider;
   elements.settingsForm.model.value = settings.model || "";
   elements.settingsForm.useCodexFallback.checked = settings.useCodexFallback;
+  elements.settingsForm.clearApiKey.checked = false;
   elements.settingsForm.codexCommand.value = settings.codexCommand || "codex";
   elements.settingsForm.apiKey.value = "";
   elements.settingsStatus.classList.remove("error");

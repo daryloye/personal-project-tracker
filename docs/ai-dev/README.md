@@ -14,15 +14,15 @@ Planned tools, services, models, and purposes:
   - Improve draft wording when credentials are available.
 - Local Codex CLI fallback
   - Run `codex exec` from the server when no external API key is configured and the local Codex CLI is installed and authenticated.
-- Prisma documentation and TypeScript tooling
-  - Validate database schema, generated types, and query usage.
+- Node.js documentation and built-in test runner
+  - Validate HTTP server behaviour, storage logic, and unit tests without external dependencies.
 
 Planned AI agents, roles, and skills:
 
 - Product planning agent
   - Converts vague project ideas into problem statements, target users, outcomes, and milestones.
 - Fullstack implementation agent
-  - Helps scaffold React components, Express routes, Prisma models, and tests.
+  - Helps scaffold browser JavaScript, Node.js API routes, local storage, and tests.
 - Reviewer agent
   - Reviews generated code for correctness, security, edge cases, and maintainability.
 - Documentation agent
@@ -55,15 +55,15 @@ You are helping me build an individual-use fullstack web app for tracking person
 ```
 
 ```text
-Review this Prisma schema for a local-first project tracker. Point out missing relationships, weak field names, and risks for future README generation.
+Review this JSON storage schema for a local-first project tracker. Point out missing relationships, weak field names, and risks for future README generation.
 ```
 
 ```text
-Generate an Express route and Zod validation schema for creating a project. Keep the code simple, typed, and testable.
+Generate a Node.js HTTP route and validation helper for creating a project. Keep the code simple and testable without external dependencies.
 ```
 
 ```text
-Review this React component for usability issues, missing states, and mobile layout problems. Do not rewrite unless needed; list concrete fixes first.
+Review this browser JavaScript UI flow for usability issues, missing states, and mobile layout problems. Do not rewrite unless needed; list concrete fixes first.
 ```
 
 ```text

@@ -20,6 +20,6 @@ test("validateDecision requires a topic", () => {
 test("validateAiSettings checks provider and fallback flag", () => {
   assert.throws(() => validateAiSettings({ provider: "bad" }), /Invalid AI provider/);
   assert.throws(() => validateAiSettings({ useCodexFallback: "yes" }), /Codex fallback/);
+  assert.throws(() => validateAiSettings({ clearApiKey: "yes" }), /Clear API key/);
   assert.equal(validateAiSettings({ provider: "openai", useCodexFallback: true }).provider, "openai");
 });
-

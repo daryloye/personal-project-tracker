@@ -59,18 +59,15 @@ Planned screenshots or demo media:
 
 ### Frontend components:
 
-- React with TypeScript for the browser UI.
-- Vite for local development and bundling.
-- Tailwind CSS for fast, consistent styling.
-- React Router for dashboard, project detail, AI log, and generated documentation views.
-- TanStack Query for client-side API state.
+- Static HTML, CSS, and browser JavaScript.
+- A dashboard-style UI for creating projects, viewing project details, adding milestones, tasks, AI sessions, and technical decisions.
+- Native `fetch` calls to the backend API.
 
 ### Backend components:
 
-- Node.js with Express for REST API endpoints.
-- SQLite for local-first persistent storage.
-- Prisma ORM for schema management and database access.
-- Zod for validating request payloads.
+- Node.js HTTP server for API endpoints and static file serving.
+- JSON-file persistence for local-first storage.
+- Small validation helpers for request payloads.
 - Configurable AI drafting provider:
   - External API when the user enters an API key.
   - Local `codex exec` fallback when Codex CLI is installed and authenticated.
@@ -84,6 +81,7 @@ Planned core API endpoints:
 - `PATCH /api/projects/:id`
 - `POST /api/projects/:id/milestones`
 - `POST /api/projects/:id/tasks`
+- `POST /api/projects/:id/decisions`
 - `PATCH /api/tasks/:id`
 - `POST /api/projects/:id/ai-sessions`
 - `GET /api/settings/ai`
@@ -98,12 +96,10 @@ Planned core API endpoints:
 Planned setup:
 
 ```bash
-npm install
-npm run db:migrate
 npm run dev
 ```
 
-The frontend and backend should run locally for development. The SQLite database should be stored outside version control.
+The app uses only Node.js built-in modules, so there are no package dependencies to install for the current MVP. The frontend and backend run from the same local server. JSON data files are stored in `data/` and excluded from version control.
 
 ---
 
@@ -113,10 +109,8 @@ Planned commands:
 
 ```bash
 npm run dev          # start local development server
-npm run build        # build production assets
 npm run start        # run production server
 npm run test         # run automated tests
-npm run db:migrate   # apply database migrations
 ```
 
 Expected behaviour:
@@ -138,29 +132,23 @@ Planned structure:
 ```text
 project/
 ├ README.md
-├ LICENSE
 ├ .gitignore
 ├ package.json
 ├ src/
 │  ├ client/
-│  │  ├ components/
-│  │  ├ pages/
-│  │  ├ routes/
-│  │  └ styles/
+│  │  ├ index.html
+│  │  ├ styles.css
+│  │  └ app.js
 │  ├ server/
-│  │  ├ api/
-│  │  ├ db/
-│  │  ├ services/
-│  │  └ validation/
-│  └ shared/
-│     └ schema/
+│  │  ├ aiService.js
+│  │  ├ server.js
+│  │  ├ storage.js
+│  │  ├ templates.js
+│  │  └ validation.js
 ├ tests/
-│  ├ api/
-│  └ ui/
 ├ docs/
 │  └ ai-dev/
 │     └ README.md
-├ scripts/
 ├ assets/
 ├ data/
 └ Extra/
@@ -169,9 +157,8 @@ project/
 Key folders:
 
 - `src/client`: frontend application screens and reusable UI components.
-- `src/server`: backend routes, data access, and AI-assisted generation services.
-- `src/shared`: shared TypeScript types and schemas used by frontend and backend.
-- `tests`: focused tests for API behaviour and important user flows.
+- `src/server`: backend routes, data access, AI provider fallback, and template drafting.
+- `tests`: focused unit tests for storage, validation, encryption, templates, and AI fallback behaviour.
 - `docs/ai-dev`: documentation of AI tools, prompts, review decisions, and reflection.
 - `Extra`: exported logs of AI chat sessions used during development.
 
@@ -291,8 +278,8 @@ Drafting fallback order:
 ## Development Milestones
 
 1. Foundation
-   - Set up React, Express, TypeScript, Prisma, SQLite, linting, and tests.
-   - Create initial database schema.
+   - Set up dependency-free Node server, static frontend, JSON persistence, and tests.
+   - Create initial storage schema.
 
 2. Project Tracking
    - Build dashboard.
@@ -330,9 +317,8 @@ Drafting fallback order:
 
 Initial decisions:
 
-- Use SQLite because this is an individual-use project and should run locally without external infrastructure.
-- Use Express instead of a heavier backend framework to keep the API understandable for interview explanation.
-- Use Prisma to keep schema changes explicit and easier to inspect.
+- Use JSON-file persistence for the first MVP because it avoids dependency setup and keeps the prototype easy to run.
+- Use the Node.js HTTP module instead of a framework for the first implementation slice so the app runs without installing packages.
 - Let the user configure an external API key for higher-quality AI drafting.
 - Fall back to local `codex exec` when no API key is configured, so a logged-in local Codex CLI can still assist with drafting.
 - Keep local templates as the final fallback so documentation drafting always works.

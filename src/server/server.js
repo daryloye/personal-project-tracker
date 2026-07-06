@@ -124,8 +124,10 @@ async function routeApi(req, res, url, store, aiDraftService) {
       useCodexFallback: body.useCodexFallback,
       codexCommand: body.codexCommand
     };
-    if (body.apiKey !== undefined) {
-      update.apiKeyEncrypted = body.apiKey ? encryptSecret(body.apiKey, config.appSecret) : "";
+    if (body.clearApiKey) {
+      update.apiKeyEncrypted = "";
+    } else if (body.apiKey && body.apiKey.trim()) {
+      update.apiKeyEncrypted = encryptSecret(body.apiKey.trim(), config.appSecret);
     }
     const settings = await store.updateAiSettings(update);
     sendJson(res, 200, { settings });
