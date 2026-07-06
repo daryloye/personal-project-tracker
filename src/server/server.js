@@ -7,8 +7,6 @@ import { readJson, sendError, sendJson, serveStatic } from "./http.js";
 import { JsonStore } from "./storage.js";
 import {
   HttpError,
-  validateAiSession,
-  validateDecision,
   validateAiSettings,
   validateMilestone,
   validateProject,
@@ -82,23 +80,17 @@ async function routeApi(req, res, url, store, aiDraftService) {
       return;
     }
 
-    if (method === "POST" && segments[3] === "ai-sessions") {
-      const aiSession = await store.createAiSession(projectId, validateAiSession(await readJson(req)));
-      if (!aiSession) throw new HttpError(404, "Project not found.");
-      sendJson(res, 201, { aiSession });
-      return;
-    }
-
-    if (method === "POST" && segments[3] === "decisions") {
-      const decision = await store.createDecision(projectId, validateDecision(await readJson(req)));
-      if (!decision) throw new HttpError(404, "Project not found.");
-      sendJson(res, 201, { decision });
-      return;
-    }
-
     if (method === "POST" && segments[3] === "draft-readme") {
       const project = await requireProject(store, projectId);
       const draft = await aiDraftService.draftReadme(project);
+      sendJson(res, 200, { draft });
+      return;
+    }
+
+    if (method === "POST" && segments[3] === "plan") {
+      const project = await requireProject(store, projectId);
+      const draft = await aiDraftService.draftPlan(project);
+      await store.savePlanningNotes(projectId, { markdown: draft.text, source: draft.source });
       sendJson(res, 200, { draft });
       return;
     }

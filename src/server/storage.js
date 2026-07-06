@@ -6,8 +6,6 @@ const emptyState = {
   projects: [],
   milestones: [],
   tasks: [],
-  aiSessions: [],
-  decisions: [],
   aiSettings: {
     id: "ai_settings",
     provider: "none",
@@ -66,6 +64,8 @@ export class JsonStore {
       repoUrl: input.repoUrl || "",
       demoUrl: input.demoUrl || "",
       category: input.category || "",
+      planningNotesMarkdown: input.planningNotesMarkdown || "",
+      planningSource: input.planningSource || "",
       createdAt: timestamp,
       updatedAt: timestamp
     };
@@ -81,9 +81,7 @@ export class JsonStore {
     return {
       ...project,
       milestones: state.milestones.filter((item) => item.projectId === id),
-      tasks: state.tasks.filter((item) => item.projectId === id),
-      aiSessions: state.aiSessions.filter((item) => item.projectId === id),
-      decisions: state.decisions.filter((item) => item.projectId === id)
+      tasks: state.tasks.filter((item) => item.projectId === id)
     };
   }
 
@@ -102,6 +100,8 @@ export class JsonStore {
       repoUrl: input.repoUrl ?? project.repoUrl,
       demoUrl: input.demoUrl ?? project.demoUrl,
       category: input.category ?? project.category,
+      planningNotesMarkdown: input.planningNotesMarkdown ?? project.planningNotesMarkdown,
+      planningSource: input.planningSource ?? project.planningSource,
       updatedAt: nowIso()
     });
     await this.write(state);
@@ -167,46 +167,15 @@ export class JsonStore {
     return task;
   }
 
-  async createAiSession(projectId, input) {
+  async savePlanningNotes(projectId, input) {
     const state = await this.read();
-    if (!state.projects.some((item) => item.id === projectId)) return null;
-    const timestamp = nowIso();
-    const session = {
-      id: createId("ai_session"),
-      projectId,
-      tool: input.tool || "",
-      model: input.model || "",
-      prompt: input.prompt || "",
-      outputSummary: input.outputSummary || "",
-      reviewNotes: input.reviewNotes || "",
-      decision: input.decision || "",
-      createdAt: timestamp
-    };
-    state.aiSessions.push(session);
-    await this.touchProject(state, projectId);
+    const project = state.projects.find((item) => item.id === projectId);
+    if (!project) return null;
+    project.planningNotesMarkdown = input.markdown || "";
+    project.planningSource = input.source || "";
+    project.updatedAt = nowIso();
     await this.write(state);
-    return session;
-  }
-
-  async createDecision(projectId, input) {
-    const state = await this.read();
-    if (!state.projects.some((item) => item.id === projectId)) return null;
-    const timestamp = nowIso();
-    const decision = {
-      id: createId("decision"),
-      projectId,
-      topic: input.topic,
-      optionsConsidered: input.optionsConsidered || "",
-      selectedOption: input.selectedOption || "",
-      rationale: input.rationale || "",
-      aiContribution: input.aiContribution || "",
-      createdAt: timestamp,
-      updatedAt: timestamp
-    };
-    state.decisions.push(decision);
-    await this.touchProject(state, projectId);
-    await this.write(state);
-    return decision;
+    return project;
   }
 
   async getAiSettings() {

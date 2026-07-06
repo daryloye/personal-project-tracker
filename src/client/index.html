@@ -10,7 +10,7 @@
     <header class="app-header">
       <div>
         <h1>Personal Project Tracker</h1>
-        <p>Track project progress, AI sessions, and README drafts.</p>
+        <p>Plan projects, track tasks, and generate Markdown notes with AI.</p>
       </div>
       <button id="refreshButton" type="button">Refresh</button>
     </header>
@@ -56,7 +56,7 @@
           <h2 id="detailTitle">Select a project</h2>
           <span id="detailStatus" class="status"></span>
         </div>
-        <div id="detailContent" class="muted">Create or select a project to manage tasks and AI logs.</div>
+        <div id="detailContent" class="muted">Create or select a project to manage tasks and planning notes.</div>
       </section>
 
       <section class="panel">
@@ -111,17 +111,10 @@
           </dl>
         </section>
         <section>
-          <h3>Add Milestone</h3>
-          <form id="milestoneForm" class="stack compact">
-            <input name="title" required placeholder="Milestone title">
-            <textarea name="description" rows="2" placeholder="Description"></textarea>
-            <button type="submit">Add Milestone</button>
-          </form>
-        </section>
-        <section>
           <h3>Add Task</h3>
           <form id="taskForm" class="stack compact">
             <input name="title" required placeholder="Task title">
+            <textarea name="description" rows="3" placeholder="What needs to be done?"></textarea>
             <select name="priority">
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -130,51 +123,23 @@
             <button type="submit">Add Task</button>
           </form>
         </section>
-        <section>
-          <h3>Add Decision</h3>
-          <form id="decisionForm" class="stack compact">
-            <input name="topic" required placeholder="Decision topic">
-            <input name="selectedOption" placeholder="Selected option">
-            <textarea name="rationale" rows="2" placeholder="Rationale"></textarea>
-            <textarea name="aiContribution" rows="2" placeholder="AI contribution"></textarea>
-            <button type="submit">Add Decision</button>
-          </form>
-        </section>
-        <section>
-          <h3>Add AI Session</h3>
-          <form id="aiSessionForm" class="stack compact">
-            <input name="tool" placeholder="Codex, ChatGPT, Cursor">
-            <textarea name="prompt" rows="2" placeholder="Prompt"></textarea>
-            <textarea name="outputSummary" rows="2" placeholder="Output summary"></textarea>
-            <textarea name="decision" rows="2" placeholder="Human decision"></textarea>
-            <button type="submit">Add AI Log</button>
-          </form>
-        </section>
-      </div>
-      <div class="detail-grid">
-        <section>
-          <h3>Milestones</h3>
-          <div data-list="milestones" class="mini-list"></div>
-        </section>
-        <section>
-          <h3>Tasks</h3>
-          <div data-list="tasks" class="mini-list"></div>
-        </section>
-        <section>
-          <h3>AI Sessions</h3>
-          <div data-list="aiSessions" class="mini-list"></div>
-        </section>
-        <section>
-          <h3>Decisions</h3>
-          <div data-list="decisions" class="mini-list"></div>
-        </section>
       </div>
       <section>
         <div class="section-title">
-          <h3>README Draft</h3>
-          <button id="draftReadmeButton" type="button">Draft README</button>
+          <h3>Kanban</h3>
+          <button id="planProjectButton" type="button">Plan with AI</button>
         </div>
-        <textarea id="draftOutput" rows="14" readonly placeholder="Draft output appears here."></textarea>
+        <div id="kanbanBoard" class="kanban-board"></div>
+      </section>
+      <section>
+        <div class="section-title">
+          <h3>Planning Notes</h3>
+          <div class="button-row">
+            <button id="draftReadmeButton" type="button">Generate README</button>
+            <button id="downloadMarkdownButton" type="button">Download .md</button>
+          </div>
+        </div>
+        <textarea id="draftOutput" rows="14" readonly placeholder="AI planning notes or README output appears here."></textarea>
       </section>
     </template>
 

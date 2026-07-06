@@ -96,44 +96,13 @@ async function loadProject(projectId) {
   fragment.querySelector('[data-field="problem"]').textContent = project.problem || "Not recorded yet.";
   fragment.querySelector('[data-field="outcome"]').textContent = project.outcome || "Not recorded yet.";
   fragment.querySelector('[data-field="techStack"]').textContent = project.techStack || "Not recorded yet.";
-  renderMiniList(fragment.querySelector('[data-list="milestones"]'), project.milestones, (milestone) => `${milestone.title} (${milestone.status})`);
-  renderMiniList(fragment.querySelector('[data-list="tasks"]'), project.tasks, (task) => `${task.title} (${task.status})`);
-  renderMiniList(
-    fragment.querySelector('[data-list="aiSessions"]'),
-    project.aiSessions,
-    (session) => `${session.tool || "AI"}: ${session.outputSummary || session.decision || "Logged"}`
-  );
-  renderMiniList(
-    fragment.querySelector('[data-list="decisions"]'),
-    project.decisions,
-    (decision) => `${decision.topic}: ${decision.selectedOption || "Not selected yet"}`
-  );
-
-  fragment.querySelector("#milestoneForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const payload = Object.fromEntries(new FormData(event.currentTarget));
-    await api(`/api/projects/${projectId}/milestones`, { method: "POST", body: payload });
-    await loadProject(projectId);
-  });
+  renderKanban(fragment.querySelector("#kanbanBoard"), project.tasks);
+  fragment.querySelector("#draftOutput").value = project.planningNotesMarkdown || "";
 
   fragment.querySelector("#taskForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const payload = Object.fromEntries(new FormData(event.currentTarget));
     await api(`/api/projects/${projectId}/tasks`, { method: "POST", body: payload });
-    await loadProject(projectId);
-  });
-
-  fragment.querySelector("#aiSessionForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const payload = Object.fromEntries(new FormData(event.currentTarget));
-    await api(`/api/projects/${projectId}/ai-sessions`, { method: "POST", body: payload });
-    await loadProject(projectId);
-  });
-
-  fragment.querySelector("#decisionForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const payload = Object.fromEntries(new FormData(event.currentTarget));
-    await api(`/api/projects/${projectId}/decisions`, { method: "POST", body: payload });
     await loadProject(projectId);
   });
 
@@ -144,8 +113,33 @@ async function loadProject(projectId) {
     output.value = `${draft.text}${draft.warning ? `\n\nWarning: ${draft.warning}` : ""}`;
   });
 
+  fragment.querySelector("#planProjectButton").addEventListener("click", async () => {
+    const output = document.querySelector("#draftOutput");
+    output.value = "Planning with AI...";
+    const { draft } = await api(`/api/projects/${projectId}/plan`, { method: "POST", body: {} });
+    output.value = `${draft.text}${draft.warning ? `\n\nWarning: ${draft.warning}` : ""}`;
+    await loadProjects();
+  });
+
+  fragment.querySelector("#downloadMarkdownButton").addEventListener("click", () => {
+    const output = document.querySelector("#draftOutput");
+    const filename = `${slugify(project.title)}-notes.md`;
+    downloadText(filename, output.value || `# ${project.title}\n\nNo notes generated yet.\n`);
+  });
+
   elements.detailContent.innerHTML = "";
   elements.detailContent.append(fragment);
+
+  document.querySelectorAll("[data-task-status]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await api(`/api/tasks/${button.dataset.taskId}`, {
+        method: "PATCH",
+        body: { status: button.dataset.taskStatus, blocker: button.dataset.taskStatus === "blocked" }
+      });
+      await loadProject(projectId);
+      await loadProjects();
+    });
+  });
 }
 
 async function loadSettings() {
@@ -178,6 +172,50 @@ function renderMiniList(container, items, labelFor) {
   }
 }
 
+function renderKanban(container, tasks) {
+  const columns = [
+    ["todo", "To Do"],
+    ["doing", "Doing"],
+    ["blocked", "Blocked"],
+    ["done", "Done"]
+  ];
+  container.innerHTML = "";
+  for (const [status, label] of columns) {
+    const column = document.createElement("section");
+    column.className = "kanban-column";
+    const items = tasks.filter((task) => task.status === status || (status === "blocked" && task.blocker));
+    column.innerHTML = `<h4>${label} <span>${items.length}</span></h4>`;
+    const list = document.createElement("div");
+    list.className = "kanban-list";
+    if (!items.length) {
+      list.innerHTML = '<p class="muted">No tasks.</p>';
+    }
+    for (const task of items) {
+      const card = document.createElement("article");
+      card.className = "task-card";
+      card.innerHTML = `
+        <strong>${escapeHtml(task.title)}</strong>
+        <p>${escapeHtml(task.description || "No description.")}</p>
+        <span class="project-meta">${escapeHtml(task.priority)} priority</span>
+        <div class="task-actions">
+          ${taskButton(task, "todo", "To Do")}
+          ${taskButton(task, "doing", "Doing")}
+          ${taskButton(task, "blocked", "Blocked")}
+          ${taskButton(task, "done", "Done")}
+        </div>
+      `;
+      list.append(card);
+    }
+    column.append(list);
+    container.append(column);
+  }
+}
+
+function taskButton(task, status, label) {
+  const disabled = task.status === status ? "disabled" : "";
+  return `<button type="button" ${disabled} data-task-id="${escapeHtml(task.id)}" data-task-status="${status}">${label}</button>`;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     method: options.method || "GET",
@@ -199,4 +237,18 @@ function escapeHtml(value) {
       "'": "&#039;"
     }[char];
   });
+}
+
+function slugify(value) {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "project";
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }

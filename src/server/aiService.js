@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { decryptSecret } from "./crypto.js";
-import { buildReadmeDraft } from "./templates.js";
+import { buildPlanningMarkdown, buildReadmeDraft } from "./templates.js";
 
 export class AiDraftService {
   constructor({ store, appSecret, codexCommand, fetchImpl = fetch, spawnImpl = spawn, timeoutMs = 20000 }) {
@@ -37,6 +37,37 @@ export class AiDraftService {
     }
 
     return { source: "template", text: buildReadmeDraft(project) };
+  }
+
+  async draftPlan(project) {
+    const prompt = buildPlanningPrompt(project);
+    return this.runDraft(prompt, () => buildPlanningMarkdown(project));
+  }
+
+  async runDraft(prompt, fallbackBuilder) {
+    const settings = await this.store.getRawAiSettings();
+
+    if (settings.provider !== "none" && settings.apiKeyEncrypted) {
+      try {
+        const text = await this.callExternalProvider(settings, prompt);
+        return { source: settings.provider, text };
+      } catch (error) {
+        if (!settings.useCodexFallback) {
+          return { source: "template", text: fallbackBuilder(), warning: error.message };
+        }
+      }
+    }
+
+    if (settings.useCodexFallback) {
+      try {
+        const text = await this.runCodex(settings.codexCommand || this.codexCommand, prompt);
+        return { source: "codex", text };
+      } catch (error) {
+        return { source: "template", text: fallbackBuilder(), warning: error.message };
+      }
+    }
+
+    return { source: "template", text: fallbackBuilder() };
   }
 
   async testProvider() {
@@ -126,6 +157,14 @@ export class AiDraftService {
 
 export function buildReadmePrompt(project) {
   return `Draft concise README sections for this personal software project. Use only the facts provided. Mark missing information as "Not recorded yet." Return Markdown only.
+
+Project:
+${JSON.stringify(project, null, 2)}
+`;
+}
+
+export function buildPlanningPrompt(project) {
+  return `Create concise Markdown planning notes for this personal project. Use the project and tasks to suggest milestones, task order, blockers, and next actions. Keep it practical. Return Markdown only.
 
 Project:
 ${JSON.stringify(project, null, 2)}

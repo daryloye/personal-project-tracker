@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildPortfolioNotes, buildReadmeDraft } from "../src/server/templates.js";
+import { buildPlanningMarkdown, buildPortfolioNotes, buildReadmeDraft } from "../src/server/templates.js";
 
 test("buildReadmeDraft includes project facts and progress counts", () => {
   const draft = buildReadmeDraft({
@@ -17,14 +17,14 @@ test("buildReadmeDraft includes project facts and progress counts", () => {
       { title: "Create API", status: "done", priority: "high" },
       { title: "Polish UI", status: "blocked", priority: "medium", blocker: true }
     ],
-    aiSessions: [{ tool: "Codex", outputSummary: "Suggested API routes." }]
+    planningNotesMarkdown: "Use the kanban board to finish the MVP."
   });
 
   assert.match(draft, /# Tracker/);
   assert.match(draft, /Projects are scattered/);
   assert.match(draft, /Completed tasks: 1/);
   assert.match(draft, /Blocked tasks: 1/);
-  assert.match(draft, /Codex: Suggested API routes/);
+  assert.match(draft, /Use the kanban board/);
 });
 
 test("buildPortfolioNotes returns structured notes", () => {
@@ -32,12 +32,25 @@ test("buildPortfolioNotes returns structured notes", () => {
     title: "Tracker",
     outcome: "A focused tracker.",
     problem: "Projects are scattered.",
-    decisions: [{ topic: "Storage", selectedOption: "JSON", rationale: "Simple local prototype." }],
-    aiSessions: [{ tool: "Codex", model: "default", decision: "Accepted route shape." }]
+    planningNotesMarkdown: "Build the core workflow first."
   });
 
   assert.equal(notes.headline, "Tracker: A focused tracker.");
-  assert.equal(notes.technicalDecisions[0].selectedOption, "JSON");
-  assert.equal(notes.aiUsage[0].decision, "Accepted route shape.");
+  assert.equal(notes.planningNotes, "Build the core workflow first.");
 });
 
+test("buildPlanningMarkdown creates kanban-oriented notes", () => {
+  const notes = buildPlanningMarkdown({
+    title: "Tracker",
+    outcome: "A focused tracker.",
+    tasks: [
+      { title: "Create API", description: "Add routes", status: "todo", priority: "high" },
+      { title: "Polish UI", description: "Improve layout", status: "done", priority: "medium" }
+    ],
+    milestones: []
+  });
+
+  assert.match(notes, /# Tracker Planning Notes/);
+  assert.match(notes, /To do: 1/);
+  assert.match(notes, /Create API: Add routes/);
+});

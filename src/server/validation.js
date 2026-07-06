@@ -38,20 +38,6 @@ export function validateTask(input, partial = false) {
   return body;
 }
 
-export function validateAiSession(input) {
-  const body = requireObject(input);
-  if (!stringPresent(body.prompt) && !stringPresent(body.outputSummary)) {
-    throw new HttpError(400, "AI session requires a prompt or output summary.");
-  }
-  return body;
-}
-
-export function validateDecision(input) {
-  const body = requireObject(input);
-  if (!stringPresent(body.topic)) throw new HttpError(400, "Decision topic is required.");
-  return body;
-}
-
 export function validateAiSettings(input) {
   const body = requireObject(input);
   if (body.provider && !providers.has(body.provider)) throw new HttpError(400, "Invalid AI provider.");

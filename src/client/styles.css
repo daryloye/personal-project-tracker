@@ -42,6 +42,11 @@ button:hover {
   background: var(--accent-strong);
 }
 
+button:disabled {
+  background: #c7ced8;
+  cursor: default;
+}
+
 input,
 select,
 textarea {
@@ -132,6 +137,58 @@ textarea {
   margin-top: 12px;
 }
 
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.kanban-column {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f7f9fb;
+  padding: 10px;
+  min-width: 150px;
+}
+
+.kanban-column h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px;
+}
+
+.kanban-list {
+  display: grid;
+  gap: 8px;
+}
+
+.task-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  padding: 10px;
+}
+
+.task-card p {
+  margin: 6px 0;
+  color: var(--muted);
+}
+
+.task-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.task-actions button {
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 0.85rem;
+}
+
 .project-item,
 .mini-item {
   border: 1px solid var(--border);
@@ -218,7 +275,8 @@ textarea {
 @media (max-width: 720px) {
   .app-header,
   .layout,
-  .detail-grid {
+  .detail-grid,
+  .kanban-board {
     grid-template-columns: 1fr;
   }
 

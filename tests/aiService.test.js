@@ -21,8 +21,7 @@ test("draftReadme falls back to template when codex fails", async () => {
     title: "Tracker",
     problem: "Scattered projects.",
     tasks: [],
-    milestones: [],
-    aiSessions: []
+    milestones: []
   });
 
   assert.equal(result.source, "template");
@@ -43,10 +42,35 @@ test("draftReadme uses codex when fallback succeeds", async () => {
     spawnImpl: successfulSpawn("Codex draft")
   });
 
-  const result = await service.draftReadme({ title: "Tracker", tasks: [], milestones: [], aiSessions: [] });
+  const result = await service.draftReadme({ title: "Tracker", tasks: [], milestones: [] });
 
   assert.equal(result.source, "codex");
   assert.equal(result.text, "Codex draft");
+});
+
+test("draftPlan falls back to planning template when codex fails", async () => {
+  const service = new AiDraftService({
+    store: fakeStore({
+      provider: "none",
+      apiKeyEncrypted: "",
+      useCodexFallback: true,
+      codexCommand: "codex"
+    }),
+    appSecret: "secret",
+    codexCommand: "codex",
+    spawnImpl: failingSpawn
+  });
+
+  const result = await service.draftPlan({
+    title: "Tracker",
+    outcome: "A focused tracker.",
+    tasks: [{ title: "Create API", status: "todo", priority: "high" }],
+    milestones: []
+  });
+
+  assert.equal(result.source, "template");
+  assert.match(result.text, /Planning Notes/);
+  assert.match(result.text, /Create API/);
 });
 
 test("testProvider returns a failed result instead of throwing", async () => {

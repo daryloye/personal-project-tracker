@@ -9,7 +9,7 @@ Planned tools, services, models, and purposes:
 - GitHub Copilot or Cursor
   - Assist with repetitive component code, API route scaffolding, and test generation.
 - Local templates
-  - Generate editable README drafts and portfolio notes from stored project data without external API tokens.
+  - Generate editable planning notes and README drafts from stored project data without external API tokens.
 - Optional external AI API
   - Improve draft wording when credentials are available.
 - Local Codex CLI fallback
@@ -26,7 +26,7 @@ Planned AI agents, roles, and skills:
 - Reviewer agent
   - Reviews generated code for correctness, security, edge cases, and maintainability.
 - Documentation agent
-  - Produces README drafts, portfolio notes, and technical decision summaries from approved project data.
+  - Produces Markdown planning notes and README drafts from approved project data.
 
 ---
 
@@ -40,7 +40,7 @@ Planned workflow:
 4. Ask AI to generate small pieces of implementation.
 5. Run tests and inspect behaviour manually.
 6. Ask AI to help debug specific errors with command output and relevant code snippets.
-7. Record each meaningful prompt, AI suggestion, review note, and final decision in the app and in `Extra`.
+7. Use the app's planning action to generate Markdown notes from the current project and task board.
 
 Planned runtime AI provider order:
 
@@ -67,7 +67,7 @@ Review this browser JavaScript UI flow for usability issues, missing states, and
 ```
 
 ```text
-Given this project data and AI session log, draft the README Overview, Demo, Technology Stack, and Usage sections. Mark assumptions clearly and avoid claiming completed results that are not supported by the data.
+Given this project and task board, create concise Markdown planning notes with suggested milestones, next actions, blockers, and task order. Mark missing information clearly.
 ```
 
 ```text
@@ -83,7 +83,7 @@ Key review points and corresponding decisions:
   - Decision: No for MVP. Local-first storage keeps the setup simpler and avoids unnecessary user data exposure.
 
 - Review point: Should AI automatically edit project records?
-  - Decision: No. AI may draft documentation, but the user must review and accept changes.
+  - Decision: No. AI may draft planning notes and README sections, but the user reviews the output.
 
 - Review point: Should API tokens be required?
   - Decision: No. Drafting should use an API key when configured, otherwise try local `codex exec`, then fall back to local templates.
@@ -91,8 +91,8 @@ Key review points and corresponding decisions:
 - Review point: Should the server call `codex exec`?
   - Decision: Yes, but only as a local fallback. It must use safe process execution, timeouts, non-interactive settings, and a template fallback.
 
-- Review point: Should every AI chat be stored in the database?
-  - Decision: Store structured summaries in the app and export full chat logs to `Extra`.
+- Review point: Should the app require manual AI logs?
+  - Decision: No. The main workflow should be project -> task board -> AI planning -> Markdown notes.
 
 - Review point: Should the first prototype include advanced analytics?
   - Decision: No. Use simple counts for active projects, blockers, and upcoming deadlines.
@@ -112,10 +112,9 @@ Planned reflection topics:
   - Generated documentation may sound complete before the prototype is actually implemented.
 
 - Changes made:
-  - Keep the MVP focused on one user's project planning, task tracking, AI logs, and documentation drafting.
+  - Keep the MVP focused on one user's project planning, kanban task tracking, AI planning, and Markdown generation.
   - Add configurable AI provider settings with API-key support and local Codex fallback.
   - Require human review for generated documentation.
-  - Separate structured AI session summaries from full raw chat logs.
 
 - Rationale:
   - The app should make the builder's thinking, AI usage, review process, and improvements visible, not hide them behind automation.
