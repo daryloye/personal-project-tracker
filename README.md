@@ -38,6 +38,9 @@ Planned user flow:
 5. Review the generated Markdown planning notes.
 6. Download the notes as a `.md` file or generate a README draft.
 
+<img width="3814" height="1922" alt="image" src="https://github.com/user-attachments/assets/ea2d2086-3cc8-44f5-8202-73ea7ab0ce3b" />
+
+
 ---
 
 ## Technology Stack
