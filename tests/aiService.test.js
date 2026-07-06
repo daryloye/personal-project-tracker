@@ -49,6 +49,46 @@ test("draftReadme uses codex when fallback succeeds", async () => {
   assert.equal(result.text, "Codex draft");
 });
 
+test("testProvider returns a failed result instead of throwing", async () => {
+  const service = new AiDraftService({
+    store: fakeStore({
+      provider: "none",
+      apiKeyEncrypted: "",
+      useCodexFallback: true,
+      codexCommand: "codex"
+    }),
+    appSecret: "secret",
+    codexCommand: "codex",
+    spawnImpl: failingSpawn
+  });
+
+  const result = await service.testProvider();
+
+  assert.equal(result.ok, false);
+  assert.equal(result.source, "codex");
+  assert.match(result.error, /not logged in/);
+});
+
+test("runCodex uses exec-safe argument array", async () => {
+  let capturedCommand = "";
+  let capturedArgs = [];
+  const service = new AiDraftService({
+    store: fakeStore({}),
+    appSecret: "secret",
+    codexCommand: "codex",
+    spawnImpl: (command, args) => {
+      capturedCommand = command;
+      capturedArgs = args;
+      return successfulSpawn("ok")();
+    }
+  });
+
+  await service.runCodex("codex", "hello");
+
+  assert.equal(capturedCommand, "codex");
+  assert.deepEqual(capturedArgs, ["exec", "--sandbox", "read-only", "--ephemeral", "hello"]);
+});
+
 function fakeStore(settings) {
   return {
     async getRawAiSettings() {
@@ -82,4 +122,3 @@ function successfulSpawn(output) {
     return child;
   };
 }
-

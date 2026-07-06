@@ -323,7 +323,7 @@ Initial decisions:
 - Fall back to local `codex exec` when no API key is configured, so a logged-in local Codex CLI can still assist with drafting.
 - Keep local templates as the final fallback so documentation drafting always works.
 - Use AI generation only for drafting, not for silently changing project data.
-- Run `codex exec` with argument arrays, not shell-interpolated commands, and use non-interactive settings so the server does not hang waiting for approval.
+- Run `codex exec` with argument arrays, not shell-interpolated commands, and use read-only ephemeral execution plus server timeouts so the server does not hang.
 - Store AI outputs with human review notes so the user can explain what AI did and what they accepted, rejected, or modified.
 
 ---

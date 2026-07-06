@@ -46,7 +46,13 @@ elements.testProviderButton.addEventListener("click", async () => {
   elements.settingsStatus.textContent = "Testing provider...";
   try {
     const { result } = await api("/api/settings/ai/test", { method: "POST", body: {} });
-    elements.settingsStatus.textContent = `Provider test ok via ${result.source}.`;
+    if (result.ok) {
+      elements.settingsStatus.classList.remove("error");
+      elements.settingsStatus.textContent = `Provider test ok via ${result.source}.`;
+    } else {
+      elements.settingsStatus.classList.add("error");
+      elements.settingsStatus.textContent = `Provider test failed via ${result.source}: ${result.error}`;
+    }
   } catch (error) {
     elements.settingsStatus.textContent = error.message;
     elements.settingsStatus.classList.add("error");

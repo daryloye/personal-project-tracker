@@ -42,15 +42,23 @@ export class AiDraftService {
   async testProvider() {
     const settings = await this.store.getRawAiSettings();
     const prompt = "Reply with exactly: ok";
-    if (settings.provider !== "none" && settings.apiKeyEncrypted) {
-      await this.callExternalProvider(settings, prompt);
-      return { ok: true, source: settings.provider };
+    try {
+      if (settings.provider !== "none" && settings.apiKeyEncrypted) {
+        await this.callExternalProvider(settings, prompt);
+        return { ok: true, source: settings.provider };
+      }
+      if (settings.useCodexFallback) {
+        await this.runCodex(settings.codexCommand || this.codexCommand, prompt, 6000);
+        return { ok: true, source: "codex" };
+      }
+      return { ok: true, source: "template" };
+    } catch (error) {
+      return {
+        ok: false,
+        source: settings.provider !== "none" && settings.apiKeyEncrypted ? settings.provider : "codex",
+        error: error.message
+      };
     }
-    if (settings.useCodexFallback) {
-      await this.runCodex(settings.codexCommand || this.codexCommand, prompt);
-      return { ok: true, source: "codex" };
-    }
-    return { ok: true, source: "template" };
   }
 
   async callExternalProvider(settings, prompt) {
@@ -83,11 +91,11 @@ export class AiDraftService {
     return output.trim();
   }
 
-  runCodex(command, prompt) {
+  runCodex(command, prompt, timeoutMs = this.timeoutMs) {
     return new Promise((resolve, reject) => {
       const child = this.spawnImpl(
         command,
-        ["exec", "--ask-for-approval", "never", "--sandbox", "read-only", prompt],
+        ["exec", "--sandbox", "read-only", "--ephemeral", prompt],
         { shell: false }
       );
       let stdout = "";
@@ -95,7 +103,7 @@ export class AiDraftService {
       const timer = setTimeout(() => {
         child.kill("SIGTERM");
         reject(new Error("codex exec timed out."));
-      }, this.timeoutMs);
+      }, timeoutMs);
 
       child.stdout?.on("data", (chunk) => {
         stdout += chunk.toString();
@@ -133,4 +141,3 @@ function extractResponsesText(data) {
   }
   return chunks.join("\n");
 }
-

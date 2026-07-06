@@ -136,7 +136,10 @@ async function routeApi(req, res, url, store, aiDraftService) {
 
   if (method === "POST" && url.pathname === "/api/settings/ai/test") {
     const result = await aiDraftService.testProvider();
-    await store.updateAiSettings({ lastTestStatus: "ok", lastTestedAt: new Date().toISOString() });
+    await store.updateAiSettings({
+      lastTestStatus: result.ok ? "ok" : `failed: ${result.error}`,
+      lastTestedAt: new Date().toISOString()
+    });
     sendJson(res, 200, { result });
     return;
   }
